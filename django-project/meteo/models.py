@@ -7,6 +7,7 @@ class User(models.Model):
     username = models.CharField(max_length=30, verbose_name="Имя пользователя")
     email = models.EmailField(max_length=50, verbose_name="Электронная почта")
     password = models.CharField(max_length=128, verbose_name="Пароль (хэш)")
+    created_at = models.DateTimeField(verbose_name='Дата регистрации', auto_now_add=True)
 
     class Meta:
         verbose_name = "Пользователь"
