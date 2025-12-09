@@ -4,7 +4,7 @@ from rest_framework import serializers
 from .models import User, City, WeatherIcon
 
 
-class CitySerializer(serializers.ModelSerializer):
+class CitySerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     country = serializers.CharField(max_length=100)
     latitude = serializers.FloatField()
