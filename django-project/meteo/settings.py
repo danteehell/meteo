@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'meteo',
     'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -121,6 +122,7 @@ STATIC_URL = 'static/'
 #критерий3 3
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 5
+    'PAGE_SIZE': 5,
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 #критерий3 3
