@@ -1,4 +1,5 @@
 from django.contrib import admin
+from simple_history.admin import SimpleHistoryAdmin
 from .models import (
     User, City, SelectedCity, ViewedCity, WeatherIcon,
     HourlyForecast, AtmosphericData, SunAndVisibility, MoonAndPhases, WeatherConfirmation
@@ -32,7 +33,7 @@ class ViewedCityInline(admin.TabularInline):
     extra = 0
     raw_id_fields = ['user']
 
-@admin.register(City)
+admin.site.register(City, SimpleHistoryAdmin)
 class CityAdmin(admin.ModelAdmin):
     @admin.display(description="Координаты")
     def coords(self, obj):
@@ -44,7 +45,7 @@ class CityAdmin(admin.ModelAdmin):
     search_fields = ['name', 'country']
     inlines = [HourlyForecastInline, AtmosphericDataInline, SunAndVisibilityInline, MoonAndPhasesInline]
 
-@admin.register(User)
+admin.site.register(User, SimpleHistoryAdmin)
 class UserAdmin(admin.ModelAdmin):
     @admin.display(description="Дней с регистрации")
     def days_since_registration(self, obj):
@@ -58,12 +59,12 @@ class UserAdmin(admin.ModelAdmin):
     date_hierarchy = 'created_at'
 
 
-@admin.register(WeatherIcon)
+admin.site.register(WeatherIcon, SimpleHistoryAdmin)
 class WeatherIconAdmin(admin.ModelAdmin):
     list_display = ['name', 'image', 'image_url']
     search_fields = ['name']
 
-@admin.register(WeatherConfirmation)
+admin.site.register(WeatherConfirmation, SimpleHistoryAdmin)
 class WeatherConfirmationAdmin(admin.ModelAdmin):
     list_display = ['user', 'city', 'date', 'fact', 'created_at']
     list_filter = ['fact', 'date']

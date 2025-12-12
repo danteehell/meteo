@@ -1,4 +1,5 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
 
@@ -8,6 +9,7 @@ class User(models.Model):
     email = models.EmailField(max_length=50, verbose_name="Электронная почта")
     password = models.CharField(max_length=128, verbose_name="Пароль (хэш)")
     created_at = models.DateTimeField(verbose_name='Дата регистрации', auto_now_add=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Пользователь"
@@ -22,6 +24,7 @@ class City(models.Model):
     country = models.CharField(max_length=100, verbose_name="Страна")
     latitude = models.FloatField(verbose_name="Широта")
     longitude = models.FloatField(verbose_name="Долгота")
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Город"
@@ -35,6 +38,8 @@ class City(models.Model):
 class SelectedCity(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
+    history = HistoricalRecords()
+
 
     class Meta:
         verbose_name = "Выбранный город"
@@ -47,6 +52,8 @@ class SelectedCity(models.Model):
 class ViewedCity(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
+    history = HistoricalRecords()
+
 
     class Meta:
         verbose_name = "Просмотренный город"
@@ -63,6 +70,7 @@ class WeatherIcon(models.Model):
     name = models.CharField(max_length=50, verbose_name="Код / название иконки")
     image = models.ImageField(upload_to="weather_icons/", null=True, blank=True, verbose_name="Файл иконки")
     image_url = models.URLField(blank=True, verbose_name="URL иконки")
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Иконка погоды"
@@ -79,6 +87,7 @@ class HourlyForecast(models.Model):
     feels_like = models.FloatField(verbose_name="Ощущается как (°C)", null=True, blank=True)
     icon = models.ForeignKey(WeatherIcon, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Иконка погоды")
     condition = models.CharField(max_length=100, blank=True, verbose_name="Состояние (текст)")
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Почасовой прогноз"
@@ -107,6 +116,7 @@ class AtmosphericData(models.Model):
     )
     dew_point = models.FloatField(verbose_name="Точка росы (°C)", null=True, blank=True)
     pressure = models.FloatField(verbose_name="Давление (гПа)", null=True, blank=True)
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Атмосферные показатели"
@@ -126,6 +136,8 @@ class SunAndVisibility(models.Model):
     sunrise = models.TimeField(verbose_name="Время восхода")
     sunset = models.TimeField(verbose_name="Время заката")
     road_visibility = models.FloatField(verbose_name="Видимость на дорогах (км)", null=True, blank=True)
+    history = HistoricalRecords()
+
 
     class Meta:
         verbose_name = "Солнце и видимость"
@@ -139,6 +151,8 @@ class MoonAndPhases(models.Model):
     city = models.OneToOneField(City, on_delete=models.CASCADE, verbose_name="Город")
     moon_phase = models.CharField(max_length=50, verbose_name="Фаза Луны")
     additional_info = models.TextField(blank=True, verbose_name="Дополнительные параметры")
+    history = HistoricalRecords()
+
 
     class Meta:
         verbose_name = "Луна и фазы"
@@ -155,6 +169,7 @@ class WeatherConfirmation(models.Model):
     fact = models.BooleanField(verbose_name="Факт погоды (Да/Нет)")
     comment = models.TextField(blank=True, verbose_name="Комментарий пользователя")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Время подтверждения")
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = "Подтверждение погоды"
@@ -164,3 +179,4 @@ class WeatherConfirmation(models.Model):
 
     def __str__(self):
         return f"{self.user.username} → {self.city.name} ({self.date}) : {'Да' if self.fact else 'Нет'}"
+
