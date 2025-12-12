@@ -1,9 +1,8 @@
 from django.contrib import admin
 from simple_history.admin import SimpleHistoryAdmin
-from .models import (
-    User, City, SelectedCity, ViewedCity, WeatherIcon,
-    HourlyForecast, AtmosphericData, SunAndVisibility, MoonAndPhases, WeatherConfirmation
-)
+from import_export.admin import ImportExportModelAdmin
+from .models import (User, City, SelectedCity, ViewedCity, WeatherIcon, 
+HourlyForecast, AtmosphericData, SunAndVisibility, MoonAndPhases, WeatherConfirmation)
 from django.utils.timezone import now
 
 class HourlyForecastInline(admin.TabularInline):
@@ -33,8 +32,8 @@ class ViewedCityInline(admin.TabularInline):
     extra = 0
     raw_id_fields = ['user']
 
-admin.site.register(City, SimpleHistoryAdmin)
-class CityAdmin(admin.ModelAdmin):
+@admin.register(City)
+class CityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     @admin.display(description="Координаты")
     def coords(self, obj):
         return f"{obj.latitude}, {obj.longitude}"
@@ -44,12 +43,14 @@ class CityAdmin(admin.ModelAdmin):
     list_filter = ['country']
     search_fields = ['name', 'country']
     inlines = [HourlyForecastInline, AtmosphericDataInline, SunAndVisibilityInline, MoonAndPhasesInline]
+    #критерий3 2
 
-admin.site.register(User, SimpleHistoryAdmin)
-class UserAdmin(admin.ModelAdmin):
+@admin.register(User)
+class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     @admin.display(description="Дней с регистрации")
     def days_since_registration(self, obj):
         return (now() - obj.created_at).days
+
     list_display = ['id', 'username', 'email', 'days_since_registration']
     list_display_links = ['username']
     list_filter = ['username', 'email', 'created_at']
@@ -58,14 +59,13 @@ class UserAdmin(admin.ModelAdmin):
     inlines = [SelectedCityInline, ViewedCityInline]
     date_hierarchy = 'created_at'
 
-
-admin.site.register(WeatherIcon, SimpleHistoryAdmin)
-class WeatherIconAdmin(admin.ModelAdmin):
+@admin.register(WeatherIcon)
+class WeatherIconAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ['name', 'image', 'image_url']
     search_fields = ['name']
 
-admin.site.register(WeatherConfirmation, SimpleHistoryAdmin)
-class WeatherConfirmationAdmin(admin.ModelAdmin):
+@admin.register(WeatherConfirmation)
+class WeatherConfirmationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ['user', 'city', 'date', 'fact', 'created_at']
     list_filter = ['fact', 'date']
     search_fields = ['user__username', 'city__name']
