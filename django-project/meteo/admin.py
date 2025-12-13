@@ -45,6 +45,14 @@ class CityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     inlines = [HourlyForecastInline, AtmosphericDataInline, SunAndVisibilityInline, MoonAndPhasesInline]
     #критерий3 2
 
+    def get_export_queryset(self, request):
+        queryset = super().get_export_queryset(request)
+        if request.user.is_superuser:
+            return queryset
+        elif request.user.groups.filter(name='ExportRussianOnly'):
+            return queryset.filter(country = 'Россия')
+    
+
 @admin.register(User)
 class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     @admin.display(description="Дней с регистрации")
@@ -59,10 +67,20 @@ class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     inlines = [SelectedCityInline, ViewedCityInline]
     date_hierarchy = 'created_at'
 
+    def get_username(self, user):
+        return user.username.upper()
+
+
 @admin.register(WeatherIcon)
 class WeatherIconAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     list_display = ['name', 'image', 'image_url']
     search_fields = ['name']
+
+    def get_name(self, obj):
+        return f"{obj.name} (иконка)"
+
+    def dehydrate_image_url(self, obj):
+        return obj.image_url or "Нет URL"
 
 @admin.register(WeatherConfirmation)
 class WeatherConfirmationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
