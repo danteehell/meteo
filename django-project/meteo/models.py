@@ -2,6 +2,7 @@ from django.db import models
 from simple_history.models import HistoricalRecords
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from .validators import base_str_validator
 
 
 class User(models.Model):
@@ -17,6 +18,10 @@ class User(models.Model):
 
     def __str__(self):
         return self.username
+
+    def clean(self):
+        base_str_validator(self.username, model=User, field_name='username', instance=self)
+        base_str_validator(self.email, model=User, field_name='email', instance=self)
 
 
 class City(models.Model):
@@ -34,12 +39,15 @@ class City(models.Model):
     def __str__(self):
         return f"{self.name}, {self.country}"
 
+    def clean(self):
+        base_str_validator(self.name, model=City, field_name='name', instance=self)
+        base_str_validator(self.country, model=City, field_name='country', instance=self)
+
 
 class SelectedCity(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     history = HistoricalRecords()
-
 
     class Meta:
         verbose_name = "Выбранный город"
@@ -54,13 +62,10 @@ class ViewedCity(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     history = HistoricalRecords()
 
-
     class Meta:
         verbose_name = "Просмотренный город"
         verbose_name_plural = "Просмотренные города"
-        indexes = [
-            models.Index(fields=["user", "city"]),
-        ]
+        indexes = [models.Index(fields=["user", "city"])]
 
     def __str__(self):
         return f"{self.user.username} — {self.city.name}"
@@ -79,6 +84,11 @@ class WeatherIcon(models.Model):
     def __str__(self):
         return self.name
 
+    def clean(self):
+        base_str_validator(self.name, model=WeatherIcon, field_name='name', instance=self)
+        if self.image_url:
+            base_str_validator(self.image_url, model=WeatherIcon, field_name='image_url', instance=self)
+
 
 class HourlyForecast(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
@@ -93,13 +103,15 @@ class HourlyForecast(models.Model):
         verbose_name = "Почасовой прогноз"
         verbose_name_plural = "Почасовые прогнозы"
         ordering = ("city", "datetime")
-        indexes = [
-            models.Index(fields=["city", "datetime"]),
-        ]
+        indexes = [models.Index(fields=["city", "datetime"])]
 
     def __str__(self):
         dt = timezone.localtime(self.datetime) if self.datetime else None
         return f"{self.city.name} — {dt.strftime('%Y-%m-%d %H:%M') if dt else '—'}"
+
+    def clean(self):
+        if self.condition:
+            base_str_validator(self.condition, model=HourlyForecast, field_name='condition', instance=self)
 
 
 class AtmosphericData(models.Model):
@@ -123,9 +135,7 @@ class AtmosphericData(models.Model):
         verbose_name_plural = "Атмосферные показатели"
         ordering = ("city", "date")
         unique_together = ("city", "date")
-        indexes = [
-            models.Index(fields=["city", "date"]),
-        ]
+        indexes = [models.Index(fields=["city", "date"])]
 
     def __str__(self):
         return f"Атмосфера: {self.city.name} — {self.date}"
@@ -137,7 +147,6 @@ class SunAndVisibility(models.Model):
     sunset = models.TimeField(verbose_name="Время заката")
     road_visibility = models.FloatField(verbose_name="Видимость на дорогах (км)", null=True, blank=True)
     history = HistoricalRecords()
-
 
     class Meta:
         verbose_name = "Солнце и видимость"
@@ -153,13 +162,16 @@ class MoonAndPhases(models.Model):
     additional_info = models.TextField(blank=True, verbose_name="Дополнительные параметры")
     history = HistoricalRecords()
 
-
     class Meta:
         verbose_name = "Луна и фазы"
         verbose_name_plural = "Луна и фазы"
 
     def __str__(self):
         return f"{self.city.name} — {self.moon_phase}"
+
+    def clean(self):
+        if self.moon_phase:
+            base_str_validator(self.moon_phase, model=MoonAndPhases, field_name='moon_phase', instance=self)
 
 
 class WeatherConfirmation(models.Model):
@@ -180,3 +192,6 @@ class WeatherConfirmation(models.Model):
     def __str__(self):
         return f"{self.user.username} → {self.city.name} ({self.date}) : {'Да' if self.fact else 'Нет'}"
 
+    def clean(self):
+        if self.comment:
+            base_str_validator(self.comment, model=WeatherConfirmation, field_name='comment', instance=self)

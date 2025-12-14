@@ -4,6 +4,7 @@ from import_export.admin import ImportExportModelAdmin
 from .models import (User, City, SelectedCity, ViewedCity, WeatherIcon, 
 HourlyForecast, AtmosphericData, SunAndVisibility, MoonAndPhases, WeatherConfirmation)
 from django.utils.timezone import now
+from django.core.exceptions import ValidationError
 
 class HourlyForecastInline(admin.TabularInline):
     model = HourlyForecast
@@ -51,7 +52,12 @@ class CityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
             return queryset
         elif request.user.groups.filter(name='ExportRussianOnly'):
             return queryset.filter(country = 'Россия')
-    
+    def clean(self):
+        if not self.name:
+            return
+        if self.name != self.name.capitalize():
+            raise ValidationError('Первая буква - большая, остальные - маленькие!')
+
 
 @admin.register(User)
 class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
@@ -69,6 +75,10 @@ class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
     def get_username(self, user):
         return user.username.upper()
+    def clean(self):
+        if not self.name:
+            return
+        
 
 
 @admin.register(WeatherIcon)
@@ -78,7 +88,6 @@ class WeatherIconAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
     def get_name(self, obj):
         return f"{obj.name} (иконка)"
-
     def dehydrate_image_url(self, obj):
         return obj.image_url or "Нет URL"
 

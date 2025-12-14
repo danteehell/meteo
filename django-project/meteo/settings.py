@@ -129,3 +129,5 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 #критерий3 3
+
+FORBIDDEN_WORDS = ['offensive_word_1', 'offensive_word_2']
