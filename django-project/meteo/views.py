@@ -44,6 +44,15 @@ class WeatherIconViewSet(viewsets.ModelViewSet):
         count = WeatherIcon.objects.filter(Q(image__isnull = False) | Q(image_url__isnull = False)).count()
         return Response({'count': count})
     
+    @action(methods=['POST'], detail=True)
+    def update_url(self, request, pk=None):
+        icon = self.get_object()
+        new_url = request.data.get('image_url')
+        if not new_url:
+            return Response({'error': 'image_url не указан'}, status=400)
+        icon.image_url = new_url
+        icon.save()
+        return Response({'status': f'URL для {icon.name} обновлён', 'image_url': icon.image_url})
 
     
 #критерий3 1
