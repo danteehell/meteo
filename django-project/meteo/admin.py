@@ -52,11 +52,6 @@ class CityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
             return queryset
         elif request.user.groups.filter(name='ExportRussianOnly'):
             return queryset.filter(country = 'Россия')
-    def clean(self):
-        if not self.name:
-            return
-        if self.name != self.name.capitalize():
-            raise ValidationError('Первая буква - большая, остальные - маленькие!')
 
 
 @admin.register(User)
@@ -75,9 +70,6 @@ class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
 
     def get_username(self, user):
         return user.username.upper()
-    def clean(self):
-        if not self.name:
-            return
         
 
 
