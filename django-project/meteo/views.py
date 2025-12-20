@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from .filters import CityFilter, HistoricalWeatherIconFilter
 from .models import City, WeatherIcon
 from .serializers import CitySerializer, WeatherIconSerializer
+from django.shortcuts import render, get_object_or_404, redirect
+from .forms import CityForm
 
 
 class CityViewSet(viewsets.ModelViewSet):
@@ -61,3 +63,36 @@ class WeatherIconViewSet(viewsets.ModelViewSet):
 
 
 # критерий3 1
+
+
+def city_list(request):
+    cities = City.objects.all()
+    return render(request, 'city_list.html', {'cities': cities})
+
+def city_create(request):
+    if request.method == 'POST':
+        form = CityForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('city-list')
+    else:
+        form = CityForm()
+    return render(request, 'city_form.html', {'form': form})
+
+def city_update(request, pk):
+    city = get_object_or_404(City, pk=pk)
+    if request.method == 'POST':
+        form = CityForm(request.POST, instance=city)
+        if form.is_valid():
+            form.save()
+            return redirect('city-list')
+    else:
+        form = CityForm(instance=city)
+    return render(request, 'city_form.html', {'form': form})
+
+def city_delete(request, pk):
+    city = get_object_or_404(City, pk=pk)
+    if request.method == 'POST':
+        city.delete()
+        return redirect('city-list')
+    return render(request, 'city_delete.html', {'city': city})
