@@ -9,30 +9,63 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('meteo', '0003_historicalatmosphericdata_historicalcity_and_more'),
+        ("meteo", "0003_historicalatmosphericdata_historicalcity_and_more"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='HistoricalUser',
+            name="HistoricalUser",
             fields=[
-                ('id', models.BigIntegerField(auto_created=True, blank=True, db_index=True, verbose_name='ID')),
-                ('username', models.CharField(max_length=30, verbose_name='Имя пользователя')),
-                ('email', models.EmailField(max_length=50, verbose_name='Электронная почта')),
-                ('password', models.CharField(max_length=128, verbose_name='Пароль (хэш)')),
-                ('created_at', models.DateTimeField(blank=True, editable=False, verbose_name='Дата регистрации')),
-                ('history_id', models.AutoField(primary_key=True, serialize=False)),
-                ('history_date', models.DateTimeField(db_index=True)),
-                ('history_change_reason', models.CharField(max_length=100, null=True)),
-                ('history_type', models.CharField(choices=[('+', 'Created'), ('~', 'Changed'), ('-', 'Deleted')], max_length=1)),
-                ('history_user', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigIntegerField(
+                        auto_created=True, blank=True, db_index=True, verbose_name="ID"
+                    ),
+                ),
+                (
+                    "username",
+                    models.CharField(max_length=30, verbose_name="Имя пользователя"),
+                ),
+                (
+                    "email",
+                    models.EmailField(max_length=50, verbose_name="Электронная почта"),
+                ),
+                (
+                    "password",
+                    models.CharField(max_length=128, verbose_name="Пароль (хэш)"),
+                ),
+                (
+                    "created_at",
+                    models.DateTimeField(
+                        blank=True, editable=False, verbose_name="Дата регистрации"
+                    ),
+                ),
+                ("history_id", models.AutoField(primary_key=True, serialize=False)),
+                ("history_date", models.DateTimeField(db_index=True)),
+                ("history_change_reason", models.CharField(max_length=100, null=True)),
+                (
+                    "history_type",
+                    models.CharField(
+                        choices=[("+", "Created"), ("~", "Changed"), ("-", "Deleted")],
+                        max_length=1,
+                    ),
+                ),
+                (
+                    "history_user",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="+",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'historical Пользователь',
-                'verbose_name_plural': 'historical Пользователи',
-                'ordering': ('-history_date', '-history_id'),
-                'get_latest_by': ('history_date', 'history_id'),
+                "verbose_name": "historical Пользователь",
+                "verbose_name_plural": "historical Пользователи",
+                "ordering": ("-history_date", "-history_id"),
+                "get_latest_by": ("history_date", "history_id"),
             },
             bases=(simple_history.models.HistoricalChanges, models.Model),
         ),

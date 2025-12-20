@@ -1,7 +1,8 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from simple_history.models import HistoricalRecords
-from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from simple_history.models import HistoricalRecords
+
 from .validators import base_str_validator
 
 
@@ -9,7 +10,9 @@ class User(models.Model):
     username = models.CharField(max_length=30, verbose_name="Имя пользователя")
     email = models.EmailField(max_length=50, verbose_name="Электронная почта")
     password = models.CharField(max_length=128, verbose_name="Пароль (хэш)")
-    created_at = models.DateTimeField(verbose_name='Дата регистрации', auto_now_add=True)
+    created_at = models.DateTimeField(
+        verbose_name="Дата регистрации", auto_now_add=True
+    )
     history = HistoricalRecords()
 
     class Meta:
@@ -20,8 +23,9 @@ class User(models.Model):
         return self.username
 
     def clean(self):
-        base_str_validator(self.username, model=User, field_name='username', instance=self)
-        base_str_validator(self.email, model=User, field_name='email', instance=self)
+        base_str_validator(
+            self.username, model=User, field_name="username", instance=self
+        )
 
 
 class City(models.Model):
@@ -40,12 +44,13 @@ class City(models.Model):
         return f"{self.name}, {self.country}"
 
     def clean(self):
-        base_str_validator(self.name, model=City, field_name='name', instance=self)
-        base_str_validator(self.country, model=City, field_name='country', instance=self)
+        base_str_validator(self.name, model=City, field_name="name", instance=self)
 
 
 class SelectedCity(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, verbose_name="Пользователь"
+    )
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     history = HistoricalRecords()
 
@@ -58,7 +63,9 @@ class SelectedCity(models.Model):
 
 
 class ViewedCity(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Пользователь"
+    )
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     history = HistoricalRecords()
 
@@ -73,7 +80,9 @@ class ViewedCity(models.Model):
 
 class WeatherIcon(models.Model):
     name = models.CharField(max_length=50, verbose_name="Код / название иконки")
-    image = models.ImageField(upload_to="weather_icons/", null=True, blank=True, verbose_name="Файл иконки")
+    image = models.ImageField(
+        upload_to="weather_icons/", null=True, blank=True, verbose_name="Файл иконки"
+    )
     image_url = models.URLField(blank=True, verbose_name="URL иконки")
     history = HistoricalRecords()
 
@@ -85,18 +94,32 @@ class WeatherIcon(models.Model):
         return self.name
 
     def clean(self):
-        base_str_validator(self.name, model=WeatherIcon, field_name='name', instance=self)
+        base_str_validator(
+            self.name, model=WeatherIcon, field_name="name", instance=self
+        )
         if self.image_url:
-            base_str_validator(self.image_url, model=WeatherIcon, field_name='image_url', instance=self)
+            base_str_validator(
+                self.image_url, model=WeatherIcon, field_name="image_url", instance=self
+            )
 
 
 class HourlyForecast(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     datetime = models.DateTimeField(verbose_name="Дата и время прогноза")
     temperature = models.FloatField(verbose_name="Температура (°C)")
-    feels_like = models.FloatField(verbose_name="Ощущается как (°C)", null=True, blank=True)
-    icon = models.ForeignKey(WeatherIcon, on_delete=models.SET_NULL, null=True, blank=True, verbose_name="Иконка погоды")
-    condition = models.CharField(max_length=100, blank=True, verbose_name="Состояние (текст)")
+    feels_like = models.FloatField(
+        verbose_name="Ощущается как (°C)", null=True, blank=True
+    )
+    icon = models.ForeignKey(
+        WeatherIcon,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Иконка погоды",
+    )
+    condition = models.CharField(
+        max_length=100, blank=True, verbose_name="Состояние (текст)"
+    )
     history = HistoricalRecords()
 
     class Meta:
@@ -111,20 +134,27 @@ class HourlyForecast(models.Model):
 
     def clean(self):
         if self.condition:
-            base_str_validator(self.condition, model=HourlyForecast, field_name='condition', instance=self)
+            base_str_validator(
+                self.condition,
+                model=HourlyForecast,
+                field_name="condition",
+                instance=self,
+            )
 
 
 class AtmosphericData(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     date = models.DateField(verbose_name="Дата")
     precipitation = models.FloatField(verbose_name="Осадки (мм)", default=0.0)
-    wind_gusts = models.FloatField(verbose_name="Порывы ветра (м/с)", null=True, blank=True)
+    wind_gusts = models.FloatField(
+        verbose_name="Порывы ветра (м/с)", null=True, blank=True
+    )
     uv_index = models.FloatField(verbose_name="УФ-индекс", null=True, blank=True)
     humidity = models.PositiveIntegerField(
         verbose_name="Влажность (%)",
         validators=[MinValueValidator(0), MaxValueValidator(100)],
         null=True,
-        blank=True
+        blank=True,
     )
     dew_point = models.FloatField(verbose_name="Точка росы (°C)", null=True, blank=True)
     pressure = models.FloatField(verbose_name="Давление (гПа)", null=True, blank=True)
@@ -145,7 +175,9 @@ class SunAndVisibility(models.Model):
     city = models.OneToOneField(City, on_delete=models.CASCADE, verbose_name="Город")
     sunrise = models.TimeField(verbose_name="Время восхода")
     sunset = models.TimeField(verbose_name="Время заката")
-    road_visibility = models.FloatField(verbose_name="Видимость на дорогах (км)", null=True, blank=True)
+    road_visibility = models.FloatField(
+        verbose_name="Видимость на дорогах (км)", null=True, blank=True
+    )
     history = HistoricalRecords()
 
     class Meta:
@@ -159,7 +191,9 @@ class SunAndVisibility(models.Model):
 class MoonAndPhases(models.Model):
     city = models.OneToOneField(City, on_delete=models.CASCADE, verbose_name="Город")
     moon_phase = models.CharField(max_length=50, verbose_name="Фаза Луны")
-    additional_info = models.TextField(blank=True, verbose_name="Дополнительные параметры")
+    additional_info = models.TextField(
+        blank=True, verbose_name="Дополнительные параметры"
+    )
     history = HistoricalRecords()
 
     class Meta:
@@ -171,16 +205,25 @@ class MoonAndPhases(models.Model):
 
     def clean(self):
         if self.moon_phase:
-            base_str_validator(self.moon_phase, model=MoonAndPhases, field_name='moon_phase', instance=self)
+            base_str_validator(
+                self.moon_phase,
+                model=MoonAndPhases,
+                field_name="moon_phase",
+                instance=self,
+            )
 
 
 class WeatherConfirmation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Пользователь")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Пользователь"
+    )
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     date = models.DateField(verbose_name="Дата")
     fact = models.BooleanField(verbose_name="Факт погоды (Да/Нет)")
     comment = models.TextField(blank=True, verbose_name="Комментарий пользователя")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Время подтверждения")
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Время подтверждения"
+    )
     history = HistoricalRecords()
 
     class Meta:
@@ -194,4 +237,9 @@ class WeatherConfirmation(models.Model):
 
     def clean(self):
         if self.comment:
-            base_str_validator(self.comment, model=WeatherConfirmation, field_name='comment', instance=self)
+            base_str_validator(
+                self.comment,
+                model=WeatherConfirmation,
+                field_name="comment",
+                instance=self,
+            )
