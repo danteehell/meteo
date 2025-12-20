@@ -5,7 +5,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .filters import CityFilter
+from .filters import CityFilter, HistoricalWeatherIconFilter
 from .models import City, WeatherIcon
 from .serializers import CitySerializer, WeatherIconSerializer
 
@@ -18,10 +18,8 @@ class CityViewSet(viewsets.ModelViewSet):
 
     # критерий3 2
     def get_queryset(self):
-        return City.objects.filter(
-            (Q(country="Россия") | Q(country="Польша"))
-            & Q(latitude__lte=50)
-            & ~Q(longitude__lte=30)
+        return City.objects.filter((Q(country="Россия") | Q(country="Польша")) & Q(latitude__lte=55) 
+            & Q(latitude__gte=45) & ~Q(longitude__lte=10) & Q(longitude__lte=40)
         )
 
     # критерий3 4
@@ -34,16 +32,14 @@ class CityViewSet(viewsets.ModelViewSet):
 class WeatherIconViewSet(viewsets.ModelViewSet):
     queryset = WeatherIcon.objects.all()
     serializer_class = WeatherIconSerializer
-
+    filterset_class = HistoricalWeatherIconFilter
+    filter_backends = [DjangoFilterBackend]
     # критерий4 1
     def get_queryset(self):
-        return WeatherIcon.objects.filter(
-            (Q(name__icontains="sun") | Q(name__icontains="cloud"))
-            & ~Q(image__isnull=True)
-            & Q(image_url="")
+        return WeatherIcon.objects.filter((Q(name__icontains="sun") | Q(name__icontains="cloud"))
+         & ~Q(image__isnull=True) & Q(image_url="")
             # критерий4 1
         )
-
     @action(methods=["GET"], detail=False)
     def with_file(self, request):
         count = WeatherIcon.objects.filter(
