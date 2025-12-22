@@ -20,8 +20,12 @@ class CityViewSet(viewsets.ModelViewSet):
 
     # критерий3 2
     def get_queryset(self):
-        return City.objects.filter((Q(country="Россия") | Q(country="Польша")) & Q(latitude__lte=55) 
-            & Q(latitude__gte=45) & ~Q(longitude__lte=10) & Q(longitude__lte=40)
+        return City.objects.filter(
+            (Q(country="Россия") | Q(country="Польша"))
+            & Q(latitude__lte=55)
+            & Q(latitude__gte=45)
+            & ~Q(longitude__lte=10)
+            & Q(longitude__lte=40)
         )
 
     # критерий3 4
@@ -36,12 +40,16 @@ class WeatherIconViewSet(viewsets.ModelViewSet):
     serializer_class = WeatherIconSerializer
     filterset_class = HistoricalWeatherIconFilter
     filter_backends = [DjangoFilterBackend]
+
     # критерий4 1
     def get_queryset(self):
-        return WeatherIcon.objects.filter((Q(name__icontains="sun") | Q(name__icontains="cloud"))
-         & ~Q(image__isnull=True) & Q(image_url="")
+        return WeatherIcon.objects.filter(
+            (Q(name__icontains="sun") | Q(name__icontains="cloud"))
+            & ~Q(image__isnull=True)
+            & Q(image_url="")
             # критерий4 1
         )
+
     @action(methods=["GET"], detail=False)
     def with_file(self, request):
         count = WeatherIcon.objects.filter(
@@ -67,32 +75,35 @@ class WeatherIconViewSet(viewsets.ModelViewSet):
 
 def city_list(request):
     cities = City.objects.all()
-    return render(request, 'city_list.html', {'cities': cities})
+    return render(request, "city_list.html", {"cities": cities})
+
 
 def city_create(request):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CityForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('city-list')
+            return redirect("city-list")
     else:
         form = CityForm()
-    return render(request, 'city_form.html', {'form': form})
+    return render(request, "city_form.html", {"form": form})
+
 
 def city_update(request, pk):
     city = get_object_or_404(City, pk=pk)
-    if request.method == 'POST':
+    if request.method == "POST":
         form = CityForm(request.POST, instance=city)
         if form.is_valid():
             form.save()
-            return redirect('city-list')
+            return redirect("city-list")
     else:
         form = CityForm(instance=city)
-    return render(request, 'city_form.html', {'form': form})
+    return render(request, "city_form.html", {"form": form})
+
 
 def city_delete(request, pk):
     city = get_object_or_404(City, pk=pk)
-    if request.method == 'POST':
+    if request.method == "POST":
         city.delete()
-        return redirect('city-list')
-    return render(request, 'city_delete.html', {'city': city})
+        return redirect("city-list")
+    return render(request, "city_delete.html", {"city": city})
