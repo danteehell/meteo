@@ -1,19 +1,24 @@
 from django.contrib import admin
-from django.utils.timezone import now
-from import_export.admin import ImportExportModelAdmin
 from simple_history.admin import SimpleHistoryAdmin
-
+from import_export.admin import ImportExportModelAdmin
 from .models import (
-    AtmosphericData,
-    City,
-    HourlyForecast,
-    MoonAndPhases,
-    SelectedCity,
-    SunAndVisibility,
     User,
+    City,
+    SelectedCity,
     ViewedCity,
-    WeatherConfirmation,
     WeatherIcon,
+    HourlyForecast,
+    AtmosphericData,
+    SunAndVisibility,
+    MoonAndPhases,
+    WeatherConfirmation,
+)
+from django.utils.timezone import now
+from .resource import (
+    UserResource,
+    CityResource,
+    WeatherIconResource,
+    WeatherConfirmationResource,
 )
 
 
@@ -52,6 +57,8 @@ class ViewedCityInline(admin.TabularInline):
 
 @admin.register(City)
 class CityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = CityResource
+
     @admin.display(description="Координаты")
     def coords(self, obj):
         return f"{obj.latitude}, {obj.longitude}"
@@ -66,18 +73,16 @@ class CityAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
         SunAndVisibilityInline,
         MoonAndPhasesInline,
     ]
-    # критерий3 2
-
-    def get_export_queryset(self, request):
-        queryset = super().get_export_queryset(request)
-        if request.user.is_superuser:
-            return queryset
-        elif request.user.groups.filter(name="ExportRussianOnly"):
-            return queryset.filter(country="Россия")
+    fieldsets = (
+        ("Основная информация", {"fields": ("name", "country")}),
+        ("Географические данные", {"fields": ("latitude", "longitude")}),
+    )
 
 
 @admin.register(User)
 class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = UserResource
+
     @admin.display(description="Дней с регистрации")
     def days_since_registration(self, obj):
         return (now() - obj.created_at).days
@@ -90,26 +95,24 @@ class UserAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     inlines = [SelectedCityInline, ViewedCityInline]
     date_hierarchy = "created_at"
 
-    def get_username(self, user):
-        return user.username.upper()
-
 
 @admin.register(WeatherIcon)
 class WeatherIconAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = WeatherIconResource
     list_display = ["name", "image", "image_url"]
     search_fields = ["name"]
-
-    def get_name(self, obj):
-        return f"{obj.name} (иконка)"
-
-    def dehydrate_image_url(self, obj):
-        return obj.image_url or "Нет URL"
+    search_fields = ["name", "country"]
 
 
 @admin.register(WeatherConfirmation)
 class WeatherConfirmationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = WeatherConfirmationResource
     list_display = ["user", "city", "date", "fact", "created_at"]
     list_filter = ["fact", "date"]
     search_fields = ["user__username", "city__name"]
     readonly_fields = ["created_at"]
     date_hierarchy = "date"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(fact=True)

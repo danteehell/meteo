@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "name",
-                    models.CharField(max_length=100, verbose_name="Название города"),
+                    models.CharField(max_length=100, verbose_name=""),
                 ),
                 ("country", models.CharField(max_length=100, verbose_name="Страна")),
                 ("latitude", models.FloatField(verbose_name="Широта")),

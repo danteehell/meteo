@@ -25,9 +25,7 @@ def home(request):
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # критерий3 1
     path("api/", include(router.urls)),
-    # критерий3 1
     path("", home),
     path("cities/", views.city_list, name="city-list"),
     path("cities/<int:pk>/delete/", views.city_delete, name="city-delete"),

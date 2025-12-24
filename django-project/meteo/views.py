@@ -18,7 +18,6 @@ class CityViewSet(viewsets.ModelViewSet):
     filterset_class = CityFilter
     filter_backends = [DjangoFilterBackend]
 
-    # критерий3 2
     def get_queryset(self):
         return City.objects.filter(
             (Q(country="Россия") | Q(country="Польша"))
@@ -27,8 +26,6 @@ class CityViewSet(viewsets.ModelViewSet):
             & ~Q(longitude__lte=10)
             & Q(longitude__lte=40)
         )
-
-    # критерий3 4
 
     @action(methods=["GET"], detail=False)
     def count(self, request):
@@ -41,13 +38,11 @@ class WeatherIconViewSet(viewsets.ModelViewSet):
     filterset_class = HistoricalWeatherIconFilter
     filter_backends = [DjangoFilterBackend]
 
-    # критерий4 1
     def get_queryset(self):
         return WeatherIcon.objects.filter(
             (Q(name__icontains="sun") | Q(name__icontains="cloud"))
             & ~Q(image__isnull=True)
             & Q(image_url="")
-            # критерий4 1
         )
 
     @action(methods=["GET"], detail=False)
@@ -68,9 +63,6 @@ class WeatherIconViewSet(viewsets.ModelViewSet):
         return Response(
             {"status": f"URL для {icon.name} обновлён", "image_url": icon.image_url}
         )
-
-
-# критерий3 1
 
 
 def city_list(request):

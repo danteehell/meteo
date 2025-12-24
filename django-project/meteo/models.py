@@ -135,10 +135,7 @@ class HourlyForecast(models.Model):
     def clean(self):
         if self.condition:
             base_str_validator(
-                self.condition,
-                model=HourlyForecast,
-                field_name="condition",
-                instance=self,
+                self.condition, model=HourlyForecast, field_name="condition", instance=self,
             )
 
 
@@ -206,12 +203,8 @@ class MoonAndPhases(models.Model):
     def clean(self):
         if self.moon_phase:
             base_str_validator(
-                self.moon_phase,
-                model=MoonAndPhases,
-                field_name="moon_phase",
-                instance=self,
+                self.moon_phase, model=MoonAndPhases, field_name="moon_phase", instance=self,
             )
-
 
 class WeatherConfirmation(models.Model):
     user = models.ForeignKey(
@@ -238,8 +231,5 @@ class WeatherConfirmation(models.Model):
     def clean(self):
         if self.comment:
             base_str_validator(
-                self.comment,
-                model=WeatherConfirmation,
-                field_name="comment",
-                instance=self,
+                self.comment,model=WeatherConfirmation,field_name="comment",instance=self,
             )
