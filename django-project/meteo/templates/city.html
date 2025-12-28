@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}{{ city.name }} — погода{% endblock %}
+
+{% block content %}
+<header class="city-header" role="banner">
+    <div class="city-header__inner">
+        <div class="city-header__meta">
+            <h2 class="city-header__title">{{ city.name }}</h2>
+            <p class="city-header__country">{{ city.country }}</p>
+        </div>
+
+        <div class="city-header__quick">
+            <div class="quick-temp">
+                <div class="quick-temp__value">{{ current.temp }}</div>
+                <div class="quick-temp__unit">°C</div>
+            </div>
+            <div class="quick-desc">
+                <p class="quick-desc__text">{{ current.description }}</p>
+                <img class="quick-desc__icon" src="https://openweathermap.org/img/wn/{{ current.icon }}@2x.png" alt="{{ current.description }}">
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="page-content" role="main">
+    <section class="grid grid--two">
+        <article class="card card--highlight" aria-labelledby="now-title">
+            <h3 id="now-title" class="card__title">Сейчас</h3>
+            <div class="card__body card__body--now">
+                <div class="temp temp--large">{{ current.temp }}°C</div>
+                <div class="feels">Ощущается как <span class="feels__val">{{ current.feels_like }}</span>°C</div>
+                <p class="desc desc--big">{{ current.description }}</p>
+                <img class="card__icon" src="https://openweathermap.org/img/wn/{{ current.icon }}@2x.png" alt="">
+            </div>
+        </article>
+
+        <aside class="card card--info" aria-labelledby="coords-title">
+            <h3 id="coords-title" class="card__title">Координаты</h3>
+            <div class="card__body">
+                <p class="meta">Широта: <span class="meta__val">{{ city.latitude }}</span></p>
+                <p class="meta">Долгота: <span class="meta__val">{{ city.longitude }}</span></p>
+            </div>
+        </aside>
+    </section>
+
+    <section class="card hourly-card" aria-labelledby="hourly-title">
+        <h3 id="hourly-title" class="card__title">Почасовой прогноз</h3>
+        <div class="hourly" role="list">
+            {% if hourly %}
+                {% for h in hourly %}
+                <div class="hour-card" role="listitem" aria-label="Прогноз на {{ h.time }}">
+                    <p class="hour-card__time">{{ h.time }}</p>
+                    <img class="hour-card__icon" src="https://openweathermap.org/img/wn/{{ h.icon }}.png" alt="{{ h.description }}">
+                    <p class="hour-card__temp">{{ h.temp }}°</p>
+                    <small class="hour-card__desc">{{ h.description }}</small>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="hourly__empty">нет данных</div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="grid grid--three cards--atmosphere" aria-label="Атмосферные показатели">
+        <div class="card">
+            <h3 class="card__title">Атмосфера</h3>
+            <div class="card__body">
+                <p>Осадки: <span class="meta__val">{{ atmosphere.precipitation }}</span> мм</p>
+                <p>Влажность: <span class="meta__val">{{ atmosphere.humidity }}</span> %</p>
+                <p>Давление: <span class="meta__val">{{ atmosphere.pressure }}</span> гПа</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card__title">Ветер</h3>
+            <div class="card__body">
+                <p>Порывы ветра: <span class="meta__val">{{ atmosphere.wind }}</span> м/с</p>
+                <p>Точка росы: <span class="meta__val">{{ atmosphere.dew_point }}</span> °C</p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 class="card__title">Солнце</h3>
+            <div class="card__body">
+                <p>Восход: <span class="meta__val">{{ sun.sunrise }}</span></p>
+                <p>Закат: <span class="meta__val">{{ sun.sunset }}</span></p>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}

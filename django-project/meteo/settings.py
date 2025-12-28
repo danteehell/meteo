@@ -121,6 +121,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
 
 # критерий3 3
 REST_FRAMEWORK = {
@@ -131,3 +134,6 @@ REST_FRAMEWORK = {
 # критерий3 3
 
 FORBIDDEN_WORDS = ["Гадость", "Пакость", "Нехороший", "Некрасивый"]
+
+WEATHERAPI_KEY = "53d088697ae38348278c04064b2a7a66"
+WEATHERAPI_BASE = "http://api.weatherapi.com/v1"

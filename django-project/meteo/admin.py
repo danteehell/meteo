@@ -25,7 +25,6 @@ from .resource import (
 class HourlyForecastInline(admin.TabularInline):
     model = HourlyForecast
     extra = 0
-    raw_id_fields = ["icon"]
 
 
 class AtmosphericDataInline(admin.TabularInline):
@@ -46,13 +45,10 @@ class MoonAndPhasesInline(admin.StackedInline):
 class SelectedCityInline(admin.TabularInline):
     model = SelectedCity
     extra = 0
-    raw_id_fields = ["user"]
-
 
 class ViewedCityInline(admin.TabularInline):
     model = ViewedCity
     extra = 0
-    raw_id_fields = ["user"]
 
 
 @admin.register(City)
@@ -112,6 +108,7 @@ class WeatherConfirmationAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
     search_fields = ["user__username", "city__name"]
     readonly_fields = ["created_at"]
     date_hierarchy = "date"
+    raw_id_fields = ('user', 'city')
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

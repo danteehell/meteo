@@ -93,16 +93,6 @@ class WeatherIcon(models.Model):
     def __str__(self):
         return self.name
 
-    def clean(self):
-        base_str_validator(
-            self.name, model=WeatherIcon, field_name="name", instance=self
-        )
-        if self.image_url:
-            base_str_validator(
-                self.image_url, model=WeatherIcon, field_name="image_url", instance=self
-            )
-
-
 class HourlyForecast(models.Model):
     city = models.ForeignKey(City, on_delete=models.CASCADE, verbose_name="Город")
     datetime = models.DateTimeField(verbose_name="Дата и время прогноза")

@@ -37,5 +37,3 @@ class WeatherIconSerializer(serializers.Serializer):
         instance.save()
         return instance
 
-
-# критерий3 1
