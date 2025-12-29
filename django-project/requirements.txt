@@ -1,6 +1,7 @@
 Django>=4.2
 djangorestframework
-django_filter
+django-filter
 django-simple-history
 django-import-export
 Pillow
+gunicorn
