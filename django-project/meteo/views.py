@@ -74,7 +74,6 @@ def city(request):
     city_name = request.GET.get("city")
     city = get_object_or_404(City, name__iexact=city_name)
 
-    # Последние почасовые прогнозы (например, на 24 часа)
     hourly_qs = list(HourlyForecast.objects.filter(city=city).order_by('datetime')[:24])
     if hourly_qs:
         hourly = [
@@ -103,7 +102,6 @@ def city(request):
             "icon": "01d",
         }
 
-    # Последние атмосферные показатели
     atmosphere_obj = AtmosphericData.objects.filter(city=city).order_by('-date').first()
     if atmosphere_obj:
         atmosphere = {
@@ -124,7 +122,6 @@ def city(request):
             "dew_point": "нет данных",
         }
 
-    # Солнце и видимость
     sun_obj = SunAndVisibility.objects.filter(city=city).first()
     if sun_obj:
         sun = {
@@ -150,10 +147,9 @@ def city(request):
 
 
 
-def city_list(request):
-    cities = City.objects.all()
-    return render(request, "city_list.html", {"cities": cities})
-
+def home(request):
+    cities = City.objects.order_by('name').values_list('name', flat=True)
+    return render(request, "home.html", {"cities": cities})
 
 def city_create(request):
     if request.method == "POST":

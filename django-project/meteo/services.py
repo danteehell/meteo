@@ -1,4 +1,3 @@
-
 import requests
 import logging
 from datetime import datetime
@@ -8,7 +7,10 @@ from .models import City, WeatherIcon, HourlyForecast, AtmosphericData, SunAndVi
 logger = logging.getLogger(__name__)
 
 API_KEY = "53d088697ae38348278c04064b2a7a66"
-BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
+
+BASE_WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
+
+BASE_GEOCODE_URL = "http://api.openweathermap.org/geo/1.0/direct"
 
 
 def fetch_weather_for_city(city: City):
@@ -19,19 +21,50 @@ def fetch_weather_for_city(city: City):
         "units": "metric",
         "lang": "ru",
     }
-
     for attempt in range(3):
         try:
-            response = requests.get(BASE_URL, params=params, timeout=30)
+            response = requests.get(BASE_WEATHER_URL, params=params, timeout=30)
             if response.status_code == 401:
-                print(f"Ошибка 401 Unauthorized для {city}.")
-                print("Ответ сервера:", response.text)
+                print(f"Ошибка 401 Unauthorized для {city}. Ответ сервера: {response.text}")
                 return None
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f"Попытка {attempt+1} для {city} не удалась, т.к.: {e}")
+            print(f"Попытка {attempt+1} для {city} не удалась: {e}")
     return None
+
+
+def fetch_or_create_city_by_name(city_name: str, country: str = None):
+    qs = City.objects.filter(name__iexact=city_name)
+    if country:
+        qs = qs.filter(country__iexact=country)
+    if qs.exists():
+        return qs.first()
+
+    params = {"q": city_name, "limit": 1, "appid": API_KEY}
+    if country:
+        params["q"] = f"{city_name},{country}"
+
+    try:
+        response = requests.get(BASE_GEOCODE_URL, params=params, timeout=30)
+        response.raise_for_status()
+        data = response.json()
+        if not data:
+            print(f"Город {city_name} не найден через API")
+            return None
+
+        city_info = data[0]
+        city_obj = City.objects.create(
+            name=city_info["name"],
+            country=city_info.get("country", ""),
+            latitude=city_info["lat"],
+            longitude=city_info["lon"]
+        )
+        return city_obj
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при поиске города {city_name}: {e}")
+        return None
+
 
 def update_models_from_weather(city: City, data: dict):
     weather = data.get("weather", [{}])[0]
@@ -64,7 +97,7 @@ def update_models_from_weather(city: City, data: dict):
             "humidity": main.get("humidity"),
             "dew_point": None,
             "pressure": main.get("pressure"),
-            "uv_index": None,
+            "uv_index": data.get("uvi"),
         }
     )
 
@@ -79,7 +112,7 @@ def update_models_from_weather(city: City, data: dict):
             defaults={
                 "sunrise": sunrise_time,
                 "sunset": sunset_time,
-                "road_visibility": None,
+                "road_visibility": data.get("visibility"),
             }
         )
 
@@ -90,7 +123,13 @@ def update_models_from_weather(city: City, data: dict):
             "additional_info": "",
         }
     )
-def sync_all_cities():
+
+
+def sync_all_cities(city_names=None):
+    if city_names:
+        for name in city_names:
+            fetch_or_create_city_by_name(name)
+
     for city in City.objects.all():
         data = fetch_weather_for_city(city)
         if not data:

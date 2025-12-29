@@ -10,7 +10,13 @@
 
         <form method="get" action="{% url 'city' %}" class="search-form" role="search" aria-label="Поиск города">
             <label class="visually-hidden" for="city-input">Город</label>
-            <input id="city-input" class="search-form__input" type="text" name="city" placeholder="Например, London" required autocomplete="off" />
+            <input id="city-input" class="search-form__input" type="text" name="city" placeholder="Например, London" 
+            required autocomplete="off" list="cities-list"/>
+            <datalist id="cities-list">
+                {% for city in cities %}
+                    <option value="{{ city }}"></option>
+                {% endfor %}
+            </datalist>
             <button class="search-form__button" type="submit" aria-label="Показать">Показать</button>
         </form>
     </div>
