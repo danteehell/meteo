@@ -1,8 +1,8 @@
 Django>=4.2
+whitenoise
 djangorestframework
 django-filter
 django-simple-history
 django-import-export
 Pillow
 gunicorn
-whitenoise
