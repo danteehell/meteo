@@ -28,10 +28,17 @@
         <article class="card card--highlight" aria-labelledby="now-title">
             <h3 id="now-title" class="card__title">Сейчас</h3>
             <div class="card__body card__body--now">
-                <div class="temp temp--large">{{ current.temp }}°C</div>
-                <div class="feels">Ощущается как <span class="feels__val">{{ current.feels_like }}</span>°C</div>
-                <p class="desc desc--big">{{ current.description }}</p>
-                <img class="card__icon" src="https://openweathermap.org/img/wn/{{ current.icon }}@2x.png" alt="">
+                <div class="now-main">
+                    <div class="temp temp--large">{{ current.temp }}°C</div>
+                    <div class="feels">
+                        Ощущается как <span class="feels__val">{{ current.feels_like }}</span>°C
+                    </div>
+                    <p class="desc desc--big">{{ current.description }}</p>
+                </div>
+
+                <img class="card__icon"
+                    src="https://openweathermap.org/img/wn/{{ current.icon }}@2x.png"
+                    alt="">
             </div>
         </article>
 
