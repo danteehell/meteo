@@ -1,4 +1,3 @@
-# критерий3 1
 from rest_framework import serializers
 
 from .models import *
@@ -39,17 +38,23 @@ class WeatherIconSerializer(serializers.Serializer):
         return instance
 
 
-# критерий3 1
-
-
-
 class HourlyForecastSerializer(serializers.ModelSerializer):
     temperature_info = serializers.SerializerMethodField()
     is_actual = serializers.BooleanField(read_only=True)
-    
+
     class Meta:
         model = HourlyForecast
-        fields = '__all__'
+        fields = [
+            "id",
+            "city",
+            "datetime",
+            "temperature",
+            "feels_like",
+            "icon",
+            "condition",
+            "temperature_info",
+            "is_actual",
+        ]
 
     def get_temperature_info(self, obj):
         if obj.temperature < 0:
@@ -64,32 +69,41 @@ class HourlyForecastSerializer(serializers.ModelSerializer):
 
 class WeatherConfirmationSerializer(serializers.ModelSerializer):
     status_text = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()
+    total_user_confirmations = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = WeatherConfirmation
-        fields = '__all__'
-    
+        fields = [
+            "id",
+            "user",
+            "city",
+            "date",
+            "fact",
+            "comment",
+            "created_at",
+            "status_text",
+            "is_owner",
+            "total_user_confirmations",
+        ]
+
     def get_status_text(self, obj):
         return "Подтверждено" if obj.fact else "Опровергнуто"
-    
+
     def get_is_owner(self, obj):
-        user = self.context.get('request_user')
+        user = self.context.get("request_user")
         if not user or user.is_anonymous:
             return False
         return obj.user == user
 
 
-
 class ViewedCitySerializer(serializers.ModelSerializer):
     class Meta:
         model = ViewedCity
-        fields = '__all__'
-
-
-from .models import SelectedCity
+        fields = "__all__"
 
 
 class SelectedCitySerializer(serializers.ModelSerializer):
     class Meta:
         model = SelectedCity
-        fields = '__all__'
+        fields = "__all__"
