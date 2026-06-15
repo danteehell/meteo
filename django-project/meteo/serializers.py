@@ -9,6 +9,7 @@ class CitySerializer(serializers.Serializer):
     country = serializers.CharField(max_length=100)
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
+    views_count = serializers.IntegerField(read_only=True)
 
     def create(self, validated_data):
         return City.objects.create(**validated_data)
@@ -43,7 +44,8 @@ class WeatherIconSerializer(serializers.Serializer):
 
 
 class HourlyForecastSerializer(serializers.ModelSerializer):
-    temperature_info = serializers.SerializerMethodField()\
+    temperature_info = serializers.SerializerMethodField()
+    is_actual = serializers.BooleanField(read_only=True)
     
     class Meta:
         model = HourlyForecast

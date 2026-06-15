@@ -10,6 +10,7 @@ from .models import City, WeatherIcon
 from .serializers import *
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import CityForm
+from django.db.models import Count, Case, When, Value, BooleanField
 
 
 class CityViewSet(viewsets.ModelViewSet):
@@ -19,7 +20,9 @@ class CityViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
-        return City.objects.select_related().filter(
+        return City.objects.annotate(
+            views_count=Count('viewedcity')
+        ).filter(
             (Q(country="Россия") | Q(country="Польша"))
             & Q(latitude__lte=55)
             & Q(latitude__gte=45)
@@ -108,10 +111,15 @@ class HourlyForecastViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
-        return HourlyForecast.objects.select_related(
-            'city',
-            'icon'
-        ).all()
+        now = timezone.now()
+
+        return HourlyForecast.objects.select_related('city', 'icon').annotate(
+            is_actual=Case(
+                When(datetime__gte=now, then=Value(True)),
+                default=Value(False),
+                output_field=BooleanField()
+            )
+        )
     
 
 class WeatherConfirmationViewSet(viewsets.ModelViewSet):
@@ -120,10 +128,9 @@ class WeatherConfirmationViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
-        return WeatherConfirmation.objects.select_related(
-            'user',
-            'city'
-        ).all()
+        return WeatherConfirmation.objects.select_related('user', 'city').annotate(
+            total_user_confirmations=Count('user')
+        )
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['request_user'] = self.request.user
