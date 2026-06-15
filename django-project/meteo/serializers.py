@@ -1,7 +1,7 @@
 # критерий3 1
 from rest_framework import serializers
 
-from .models import City, WeatherIcon
+from .models import *
 
 
 class CitySerializer(serializers.Serializer):
@@ -39,3 +39,33 @@ class WeatherIconSerializer(serializers.Serializer):
 
 
 # критерий3 1
+
+
+
+class HourlyForecastSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HourlyForecast
+        fields = '__all__'
+
+
+
+class WeatherConfirmationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WeatherConfirmation
+        fields = '__all__'
+
+
+
+class ViewedCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewedCity
+        fields = '__all__'
+
+
+from .models import SelectedCity
+
+
+class SelectedCitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SelectedCity
+        fields = '__all__'
