@@ -43,16 +43,38 @@ class WeatherIconSerializer(serializers.Serializer):
 
 
 class HourlyForecastSerializer(serializers.ModelSerializer):
+    temperature_info = serializers.SerializerMethodField()\
+    
     class Meta:
         model = HourlyForecast
         fields = '__all__'
 
+    def get_temperature_info(self, obj):
+        if obj.temperature < 0:
+            return "Холодно"
+        elif obj.temperature < 15:
+            return "Прохладно"
+        elif obj.temperature < 25:
+            return "Тепло"
+        else:
+            return "Жарко"
 
 
 class WeatherConfirmationSerializer(serializers.ModelSerializer):
+    status_text = serializers.SerializerMethodField()
+
     class Meta:
         model = WeatherConfirmation
         fields = '__all__'
+    
+    def get_status_text(self, obj):
+        return "Подтверждено" if obj.fact else "Опровергнуто"
+    
+    def get_is_owner(self, obj):
+        user = self.context.get('request_user')
+        if not user or user.is_anonymous:
+            return False
+        return obj.user == user
 
 
 

@@ -124,6 +124,10 @@ class WeatherConfirmationViewSet(viewsets.ModelViewSet):
             'user',
             'city'
         ).all()
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request_user'] = self.request.user
+        return context
     
 
 class ViewedCityViewSet(viewsets.ModelViewSet):
