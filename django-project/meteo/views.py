@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from .filters import CityFilter, HistoricalWeatherIconFilter
 from .models import City, WeatherIcon
-from .serializers import CitySerializer, WeatherIconSerializer
+from .serializers import *
 from django.shortcuts import render, get_object_or_404, redirect
 from .forms import CityForm
 
@@ -19,7 +19,7 @@ class CityViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend]
 
     def get_queryset(self):
-        return City.objects.filter(
+        return City.objects.select_related().filter(
             (Q(country="Россия") | Q(country="Польша"))
             & Q(latitude__lte=55)
             & Q(latitude__gte=45)
@@ -99,3 +99,52 @@ def city_delete(request, pk):
         city.delete()
         return redirect("city-list")
     return render(request, "city_delete.html", {"city": city})
+
+
+
+class HourlyForecastViewSet(viewsets.ModelViewSet):
+    queryset = HourlyForecast.objects.all()
+    serializer_class = HourlyForecastSerializer
+    filter_backends = [DjangoFilterBackend]
+
+    def get_queryset(self):
+        return HourlyForecast.objects.select_related(
+            'city',
+            'icon'
+        ).all()
+    
+
+class WeatherConfirmationViewSet(viewsets.ModelViewSet):
+    queryset = WeatherConfirmation.objects.all()
+    serializer_class = WeatherConfirmationSerializer
+    filter_backends = [DjangoFilterBackend]
+
+    def get_queryset(self):
+        return WeatherConfirmation.objects.select_related(
+            'user',
+            'city'
+        ).all()
+    
+
+class ViewedCityViewSet(viewsets.ModelViewSet):
+    queryset = ViewedCity.objects.all()
+    serializer_class = ViewedCitySerializer
+    filter_backends = [DjangoFilterBackend]
+
+    def get_queryset(self):
+        return ViewedCity.objects.select_related(
+            'user',
+            'city'
+        ).all()
+
+
+class SelectedCityViewSet(viewsets.ModelViewSet):
+    queryset = SelectedCity.objects.all()
+    serializer_class = SelectedCitySerializer
+    filter_backends = [DjangoFilterBackend]
+
+    def get_queryset(self):
+        return SelectedCity.objects.select_related(
+            'user',
+            'city'
+        ).all()
