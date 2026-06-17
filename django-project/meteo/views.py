@@ -29,12 +29,6 @@ class CityViewSet(viewsets.ModelViewSet):
         """
         return City.objects.annotate(
             views_count=Count('viewedcity')
-        ).filter(
-            (Q(country="Россия") | Q(country="Польша"))
-            & Q(latitude__lte=55)
-            & Q(latitude__gte=45)
-            & ~Q(longitude__lte=10)
-            & Q(longitude__lte=40)
         )
 
     @action(methods=["GET"], detail=False)

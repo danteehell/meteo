@@ -45,8 +45,4 @@ urlpatterns = [
 
     path("", home),
 
-    path("cities/", views.city_list, name="city-list"),
-    path("cities/add/", views.city_create, name="city-add"),
-    path("cities/<int:pk>/update/", views.city_update, name="city-update"),
-    path("cities/<int:pk>/delete/", views.city_delete, name="city-delete"),
 ]
